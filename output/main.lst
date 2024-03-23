@@ -1,0 +1,93 @@
+
+output/main.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+08000010 <main>:
+    for (int i = 0; i < 1000000; ++i);
+}
+
+int main() {
+    // Enable GPIOC clock
+    RCC->APB2ENR |= (1 << 4);
+ 8000010:	4a09      	ldr	r2, [pc, #36]	; (8000038 <main+0x28>)
+ 8000012:	6993      	ldr	r3, [r2, #24]
+ 8000014:	f043 0310 	orr.w	r3, r3, #16
+ 8000018:	6193      	str	r3, [r2, #24]
+
+    // Configure Pin 13 as Output (LED)
+    GPIOC->CRH |= (1 << 20);  // Set mode bits for Pin 13
+ 800001a:	4b08      	ldr	r3, [pc, #32]	; (800003c <main+0x2c>)
+ 800001c:	685a      	ldr	r2, [r3, #4]
+ 800001e:	f442 1280 	orr.w	r2, r2, #1048576	; 0x100000
+ 8000022:	605a      	str	r2, [r3, #4]
+    GPIOC->CRH &= ~(1 << 21);
+ 8000024:	685a      	ldr	r2, [r3, #4]
+ 8000026:	f422 1200 	bic.w	r2, r2, #2097152	; 0x200000
+ 800002a:	605a      	str	r2, [r3, #4]
+
+    while (1) {
+        // Toggle Pin 13 (LED)
+        GPIOC->ODR ^= (1 << 13);
+ 800002c:	68da      	ldr	r2, [r3, #12]
+ 800002e:	f482 5200 	eor.w	r2, r2, #8192	; 0x2000
+ 8000032:	60da      	str	r2, [r3, #12]
+ 8000034:	e7fa      	b.n	800002c <main+0x1c>
+ 8000036:	bf00      	nop
+ 8000038:	40021000 	.word	0x40021000
+ 800003c:	40011000 	.word	0x40011000
+
+08000040 <Default_Handler>:
+
+    // Infinite loop to prevent falling through
+    while (1);
+}
+
+void Default_Handler(void) {
+ 8000040:	e7fe      	b.n	8000040 <Default_Handler>
+	...
+
+08000044 <Reset_Handler>:
+void Reset_Handler(void) {
+ 8000044:	b508      	push	{r3, lr}
+ 8000046:	4a0a      	ldr	r2, [pc, #40]	; (8000070 <Reset_Handler+0x2c>)
+ 8000048:	4b0a      	ldr	r3, [pc, #40]	; (8000074 <Reset_Handler+0x30>)
+    while (destination < &_edata) {
+ 800004a:	490b      	ldr	r1, [pc, #44]	; (8000078 <Reset_Handler+0x34>)
+ 800004c:	428b      	cmp	r3, r1
+ 800004e:	d307      	bcc.n	8000060 <Reset_Handler+0x1c>
+        *destination++ = 0;
+ 8000050:	2100      	movs	r1, #0
+ 8000052:	4b0a      	ldr	r3, [pc, #40]	; (800007c <Reset_Handler+0x38>)
+    while (destination < &_ebss) {
+ 8000054:	4a0a      	ldr	r2, [pc, #40]	; (8000080 <Reset_Handler+0x3c>)
+ 8000056:	4293      	cmp	r3, r2
+ 8000058:	d307      	bcc.n	800006a <Reset_Handler+0x26>
+    main();
+ 800005a:	f7ff ffd9 	bl	8000010 <main>
+ 800005e:	e7fe      	b.n	800005e <Reset_Handler+0x1a>
+        *destination++ = *source++;
+ 8000060:	f852 0f04 	ldr.w	r0, [r2, #4]!
+ 8000064:	f843 0b04 	str.w	r0, [r3], #4
+ 8000068:	e7f0      	b.n	800004c <Reset_Handler+0x8>
+        *destination++ = 0;
+ 800006a:	f843 1b04 	str.w	r1, [r3], #4
+ 800006e:	e7f2      	b.n	8000056 <Reset_Handler+0x12>
+ 8000070:	08000088 	.word	0x08000088
+ 8000074:	20000000 	.word	0x20000000
+ 8000078:	20000000 	.word	0x20000000
+ 800007c:	20000000 	.word	0x20000000
+ 8000080:	20000000 	.word	0x20000000
+
+Disassembly of section .init:
+
+08000084 <_init>:
+ 8000084:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000086:	bf00      	nop
+
+Disassembly of section .fini:
+
+08000088 <_fini>:
+ 8000088:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 800008a:	bf00      	nop
