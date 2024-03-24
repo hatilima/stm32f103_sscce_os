@@ -51,7 +51,8 @@ SRCS	=	./src/main.c \
 OBJS=$(SRCS:.c=.o)
 
 
-.PHONY : clean all
+.PHONY : clean all flash_st 
+#flash_ocd
 
 
 all: $(TARGET).bin  $(TARGET).list
@@ -68,6 +69,9 @@ clean:
 	-find . -name '*.bin' | xargs rm
 	-find . -name '*.map' | xargs rm
 
+flash_st:
+	@echo "  Flashing firmware $(TARGET).bin to chip at address 0x8000000"
+	st-flash write $(TARGET).bin 0x8000000
 
 $(TARGET).list: $(TARGET).elf
 	@echo "  OBJDUMP $(TARGET).list"
