@@ -1,0 +1,164 @@
+
+output/main.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+08000010 <delay>:
+#include "stm32f103x_registers.h"
+
+void delay() {
+ 8000010:	b480      	push	{r7}
+ 8000012:	b083      	sub	sp, #12
+ 8000014:	af00      	add	r7, sp, #0
+    for (int i = 0; i < 1000000; ++i);
+ 8000016:	2300      	movs	r3, #0
+ 8000018:	607b      	str	r3, [r7, #4]
+ 800001a:	e002      	b.n	8000022 <delay+0x12>
+ 800001c:	687b      	ldr	r3, [r7, #4]
+ 800001e:	3301      	adds	r3, #1
+ 8000020:	607b      	str	r3, [r7, #4]
+ 8000022:	687b      	ldr	r3, [r7, #4]
+ 8000024:	4a03      	ldr	r2, [pc, #12]	; (8000034 <delay+0x24>)
+ 8000026:	4293      	cmp	r3, r2
+ 8000028:	ddf8      	ble.n	800001c <delay+0xc>
+}
+ 800002a:	bf00      	nop
+ 800002c:	370c      	adds	r7, #12
+ 800002e:	46bd      	mov	sp, r7
+ 8000030:	bc80      	pop	{r7}
+ 8000032:	4770      	bx	lr
+ 8000034:	000f423f 	.word	0x000f423f
+
+08000038 <main>:
+
+int main() {
+ 8000038:	b580      	push	{r7, lr}
+ 800003a:	af00      	add	r7, sp, #0
+    // Enable GPIOC clock
+    RCC->APB2ENR |= (1 << 4);
+ 800003c:	4a0d      	ldr	r2, [pc, #52]	; (8000074 <main+0x3c>)
+ 800003e:	4b0d      	ldr	r3, [pc, #52]	; (8000074 <main+0x3c>)
+ 8000040:	699b      	ldr	r3, [r3, #24]
+ 8000042:	f043 0310 	orr.w	r3, r3, #16
+ 8000046:	6193      	str	r3, [r2, #24]
+
+    // Configure Pin 13 as Output (LED)
+    GPIOC->CRH |= (1 << 20);  // Set mode bits for Pin 13
+ 8000048:	4a0b      	ldr	r2, [pc, #44]	; (8000078 <main+0x40>)
+ 800004a:	4b0b      	ldr	r3, [pc, #44]	; (8000078 <main+0x40>)
+ 800004c:	685b      	ldr	r3, [r3, #4]
+ 800004e:	f443 1380 	orr.w	r3, r3, #1048576	; 0x100000
+ 8000052:	6053      	str	r3, [r2, #4]
+    GPIOC->CRH &= ~(1 << 21);
+ 8000054:	4a08      	ldr	r2, [pc, #32]	; (8000078 <main+0x40>)
+ 8000056:	4b08      	ldr	r3, [pc, #32]	; (8000078 <main+0x40>)
+ 8000058:	685b      	ldr	r3, [r3, #4]
+ 800005a:	f423 1300 	bic.w	r3, r3, #2097152	; 0x200000
+ 800005e:	6053      	str	r3, [r2, #4]
+
+    while (1) {
+        // Toggle Pin 13 (LED)
+        GPIOC->ODR ^= (1 << 13);
+ 8000060:	4a05      	ldr	r2, [pc, #20]	; (8000078 <main+0x40>)
+ 8000062:	4b05      	ldr	r3, [pc, #20]	; (8000078 <main+0x40>)
+ 8000064:	68db      	ldr	r3, [r3, #12]
+ 8000066:	f483 5300 	eor.w	r3, r3, #8192	; 0x2000
+ 800006a:	60d3      	str	r3, [r2, #12]
+        delay();
+ 800006c:	f7ff ffd0 	bl	8000010 <delay>
+        GPIOC->ODR ^= (1 << 13);
+ 8000070:	e7f6      	b.n	8000060 <main+0x28>
+ 8000072:	bf00      	nop
+ 8000074:	40021000 	.word	0x40021000
+ 8000078:	40011000 	.word	0x40011000
+
+0800007c <Reset_Handler>:
+    (uint32_t *)Default_Handler, // Hard fault
+    // Other interrupt service routine (ISR) entries...
+};
+*/
+
+void Reset_Handler(void) {
+ 800007c:	b580      	push	{r7, lr}
+ 800007e:	b082      	sub	sp, #8
+ 8000080:	af00      	add	r7, sp, #0
+    // Copy initialized data section from Flash to RAM
+    uint32_t *source = &_sidata;
+ 8000082:	4b10      	ldr	r3, [pc, #64]	; (80000c4 <Reset_Handler+0x48>)
+ 8000084:	607b      	str	r3, [r7, #4]
+    uint32_t *destination = &_sdata;
+ 8000086:	4b10      	ldr	r3, [pc, #64]	; (80000c8 <Reset_Handler+0x4c>)
+ 8000088:	603b      	str	r3, [r7, #0]
+
+    while (destination < &_edata) {
+ 800008a:	e007      	b.n	800009c <Reset_Handler+0x20>
+        *destination++ = *source++;
+ 800008c:	683b      	ldr	r3, [r7, #0]
+ 800008e:	1d1a      	adds	r2, r3, #4
+ 8000090:	603a      	str	r2, [r7, #0]
+ 8000092:	687a      	ldr	r2, [r7, #4]
+ 8000094:	1d11      	adds	r1, r2, #4
+ 8000096:	6079      	str	r1, [r7, #4]
+ 8000098:	6812      	ldr	r2, [r2, #0]
+ 800009a:	601a      	str	r2, [r3, #0]
+    while (destination < &_edata) {
+ 800009c:	683b      	ldr	r3, [r7, #0]
+ 800009e:	4a0b      	ldr	r2, [pc, #44]	; (80000cc <Reset_Handler+0x50>)
+ 80000a0:	4293      	cmp	r3, r2
+ 80000a2:	d3f3      	bcc.n	800008c <Reset_Handler+0x10>
+    }
+
+    // Initialize BSS section to zero
+    destination = &_sbss;
+ 80000a4:	4b0a      	ldr	r3, [pc, #40]	; (80000d0 <Reset_Handler+0x54>)
+ 80000a6:	603b      	str	r3, [r7, #0]
+    while (destination < &_ebss) {
+ 80000a8:	e004      	b.n	80000b4 <Reset_Handler+0x38>
+        *destination++ = 0;
+ 80000aa:	683b      	ldr	r3, [r7, #0]
+ 80000ac:	1d1a      	adds	r2, r3, #4
+ 80000ae:	603a      	str	r2, [r7, #0]
+ 80000b0:	2200      	movs	r2, #0
+ 80000b2:	601a      	str	r2, [r3, #0]
+    while (destination < &_ebss) {
+ 80000b4:	683b      	ldr	r3, [r7, #0]
+ 80000b6:	4a07      	ldr	r2, [pc, #28]	; (80000d4 <Reset_Handler+0x58>)
+ 80000b8:	4293      	cmp	r3, r2
+ 80000ba:	d3f6      	bcc.n	80000aa <Reset_Handler+0x2e>
+    }
+
+    // Call the main function
+    main();
+ 80000bc:	f7ff ffbc 	bl	8000038 <main>
+
+    // Infinite loop to prevent falling through
+    while (1);
+ 80000c0:	e7fe      	b.n	80000c0 <Reset_Handler+0x44>
+ 80000c2:	bf00      	nop
+ 80000c4:	080000e8 	.word	0x080000e8
+ 80000c8:	20000000 	.word	0x20000000
+ 80000cc:	20000000 	.word	0x20000000
+ 80000d0:	20000000 	.word	0x20000000
+ 80000d4:	20000000 	.word	0x20000000
+
+080000d8 <Default_Handler>:
+}
+
+void Default_Handler(void) {
+ 80000d8:	b480      	push	{r7}
+ 80000da:	af00      	add	r7, sp, #0
+    while (1);
+ 80000dc:	e7fe      	b.n	80000dc <Default_Handler+0x4>
+
+Disassembly of section .init:
+
+080000e0 <_init>:
+ 80000e0:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 80000e2:	bf00      	nop
+
+Disassembly of section .fini:
+
+080000e4 <_fini>:
+ 80000e4:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 80000e6:	bf00      	nop

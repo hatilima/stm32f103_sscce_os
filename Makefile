@@ -12,7 +12,6 @@ SZ		= $(CROSS_COMPILE)size
 CFLAGS	= 	-c -fno-common \
 			-ffunction-sections \
 			-fdata-sections \
-			-Os \
 			-g3 \
 			-mcpu=cortex-m3 \
 			-mthumb \
