@@ -6,16 +6,19 @@ void delay() {
     for (int i = 0; i < 1000000; ++i);
 }
 
-static void task1(void* args)
+void task1(void* args)
 {
-    int i;
-    // Toggle Pin 13 (LED)
-    GPIOC->ODR ^= (1 << 13);
-    delay();
-    /*for(i = 0; i < 1000000; i++)
+    //int i;
+    for(;;)
     {
-        __asm__("nop");
-    } */
+        // Toggle Pin 13 (LED)
+        GPIOC->ODR ^= (1 << 13);
+        delay();
+        /*for(i = 0; i < 1000000; i++)
+        {
+            __asm__("nop");
+        } */
+    }
 }
 
 int main() {
@@ -25,10 +28,17 @@ int main() {
     // Configure Pin 13 as Output (LED)
     GPIOC->CRH |= (1 << 20);  // Set mode bits for Pin 13
     GPIOC->CRH &= ~(1 << 21);
-
-    xTaskCreate(task1,"LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+    xTaskCreate(task1,"LED",100,NULL,tskIDLE_PRIORITY + 1 ,NULL); //configMAX_PRIORITIES-1
 	vTaskStartScheduler();
 	for (;;);
+   
+   /* while(1)
+    {
+        // Toggle Pin 13 (LED)
+        GPIOC->ODR ^= (1 << 13);
+        delay();
+    }
+    */
 
     return 0;
 }
