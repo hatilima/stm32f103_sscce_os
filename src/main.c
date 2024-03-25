@@ -28,7 +28,8 @@ int main() {
     // Configure Pin 13 as Output (LED)
     GPIOC->CRH |= (1 << 20);  // Set mode bits for Pin 13
     GPIOC->CRH &= ~(1 << 21);
-    xTaskCreate(task1,"LED",100,NULL,tskIDLE_PRIORITY + 1 ,NULL); //configMAX_PRIORITIES-1
+    xTaskCreate( task1, ( signed char * ) "LED_Blink", 100, NULL, 10, NULL );
+    //xTaskCreate(task1,"LED",100,NULL,configMAX_PRIORITIES-1 ,NULL); //
 	vTaskStartScheduler();
 	for (;;);
    
